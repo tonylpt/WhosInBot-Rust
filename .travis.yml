@@ -2,14 +2,13 @@ addons:
   postgresql: "9.6"
 language: rust
 rust:
-  - stable
   - nightly
 cache: cargo
 before_script:
   - cp -f .env.template .env
   - psql -c 'create database whosin_test;' -U postgres
 script:
-  - cargo +nightly test
+  - cargo test
   - cargo build
 branches:
   only:
