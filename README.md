@@ -1,8 +1,8 @@
-# WhosInBot Rust
+# WhosInBot - Rust
 
 [![Build Status](https://travis-ci.org/tonylpt/WhosInBot-Rust.svg?branch=master)](https://travis-ci.org/tonylpt/WhosInBot-Rust)
 
-This is a rewrite of the [WhosInBot](https://github.com/col/whos_in_bot) in Rust.
+This is an implementation of the [WhosInBot](https://github.com/col/whos_in_bot) in Rust.
 
 Check out the [Clojure](https://github.com/tonylpt/WhosInBot-Clojure) and [Scala](https://github.com/tonylpt/WhosInBot-Scala) versions.
 
@@ -42,7 +42,7 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
 
 
 ### Setup
-1. Install [Diesel ORM CLI](http://diesel.rs/guides/getting-started/)
+1. Install [Diesel ORM CLI](http://diesel.rs/guides/getting-started/):
 
         cargo install diesel_cli --no-default-features --features postgres
 
@@ -74,3 +74,9 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
 
         cargo build --release
         
+2. Run the Release build:
+
+        DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+        TELEGRAM_BOT_TOKEN=[TELEGRAM_TOKEN] \
+        SENTRY_DSN=[SENTRY_DSN] \
+        target/release/whosinbot
