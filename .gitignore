@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+
+*.iml
+.idea/
+.dbdata/
+
+.env
