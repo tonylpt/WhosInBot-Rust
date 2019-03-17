@@ -36,6 +36,7 @@ fn main() {
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("Missing TELEGRAM_BOT_TOKEN");
     let database_url = env::var("DATABASE_URL").expect("Missing DATABASE_URL");
 
+    info!("Bot is starting...");
     whosinbot::run_whosin_bot(token, database_url).map_err(|error| {
         error!("An error has occurred: {}", error; "details" => format!("{:?}", error));
         error

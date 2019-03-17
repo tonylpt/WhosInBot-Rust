@@ -26,6 +26,7 @@ pub fn run<F>(token: &str, handler: F) -> BotResult
 
     let logger = slog_scope::logger();
 
+    info!("Waiting for messages...");
     let future = api.stream().for_each(|update| {
         if let UpdateKind::Message(message) = update.kind {
             if let Some(reply) = handle_message(&handler, &message, &logger) {
