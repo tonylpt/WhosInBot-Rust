@@ -5,11 +5,9 @@ rust:
   - nightly
 cache: cargo
 before_script:
-  - rustup component add clippy
   - cp -f .env.template .env
   - psql -c 'create database whosin_test;' -U postgres
 script:
-  - cargo clippy -- -D warnings
   - cargo test
   - cargo build
 branches:
