@@ -1,0 +1,2 @@
+[database]
+url = "postgres://whosin:p%40ssw0rd@localhost:35432/whosin_test"

@@ -5,4 +5,4 @@
 .idea/
 .dbdata/
 
-.env
+/config/main.toml

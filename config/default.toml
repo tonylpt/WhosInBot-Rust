@@ -1,0 +1,9 @@
+[database]
+url = ""
+timeout_ms = 5000
+
+[telegram]
+token = ""
+
+[sentry]
+dsn = ""

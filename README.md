@@ -47,7 +47,7 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
         cargo install diesel_cli --no-default-features --features postgres
 
 2. [Create a Telegram bot](https://core.telegram.org/bots#creating-a-new-bot) for development and obtain the authorization token.
-3. Copy `.env.template` to `.env` and fill in the Telegram token.        
+3. Copy `config/main.template.toml` to `config/main.toml` and fill in the Telegram token.        
 4. Start the development PostgreSQL and Redis with Docker Compose:
 
         docker-compose up -d
@@ -76,7 +76,7 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
         
 2. Run the Release build:
 
-        DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
-        TELEGRAM_BOT_TOKEN=[TELEGRAM_TOKEN] \
-        SENTRY_DSN=[SENTRY_DSN] \
+        WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+        WHOSIN_TELEGRAM_TOKEN=[TELEGRAM_TOKEN] \
+        WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
         target/release/whosinbot

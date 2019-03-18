@@ -1,0 +1,8 @@
+[database]
+url = "postgres://whosin:p%40ssw0rd@localhost:35432/whosin_dev"
+
+[telegram]
+token = "-- FILL ME IN --"
+
+[sentry]
+dsn = ""
