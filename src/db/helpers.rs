@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use chrono::NaiveDateTime;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -13,9 +15,11 @@ pub type Pool = r2d2::Pool<Manager>;
 pub type PooledConnection = r2d2::PooledConnection<Manager>;
 pub type PoolResult = Result<Pool, r2d2::Error>;
 
-pub fn connect(database_url: &str) -> PoolResult {
+pub fn connect(database_url: &str, timeout: Duration) -> PoolResult {
     let manager = ConnectionManager::<PgConnection>::new(database_url);
-    r2d2::Pool::builder().build(manager)
+    r2d2::Pool::builder()
+        .connection_timeout(timeout)
+        .build(manager)
 }
 
 pub fn create_call(conn: &PgConnection, chat_id: ChatId, title: &str) -> QueryResult<RollCall> {

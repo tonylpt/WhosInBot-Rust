@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use diesel::result::QueryResult;
 #[cfg(test)]
 use mockers_derive::mocked;
@@ -56,8 +58,8 @@ pub struct PostgresRepository {
 }
 
 impl PostgresRepository {
-    pub fn new(database_url: &str) -> DatabaseResult<Self> {
-        let pool = h::connect(database_url).map_err(DatabaseError::ConnectError)?;
+    pub fn new(database_url: &str, timeout: Duration) -> DatabaseResult<Self> {
+        let pool = h::connect(database_url, timeout).map_err(DatabaseError::ConnectError)?;
 
         let repository = PostgresRepository { pool };
         Ok(repository)

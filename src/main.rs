@@ -9,6 +9,7 @@ extern crate whosinbot;
 
 use std::env;
 use std::sync::Arc;
+use std::time::Duration;
 
 use dotenv::dotenv;
 use slog::Drain;
@@ -36,8 +37,14 @@ fn main() {
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("Missing TELEGRAM_BOT_TOKEN");
     let database_url = env::var("DATABASE_URL").expect("Missing DATABASE_URL");
 
+    let database_timeout_ms = env::var("DATABASE_TIMEOUT_MS").unwrap_or_else(|_| "5000".into());
+    let database_timeout_ms = database_timeout_ms
+        .parse()
+        .expect("Invalid DATABASE_TIMEOUT_MS");
+    let database_timeout = Duration::from_millis(database_timeout_ms);
+
     info!("Bot is starting...");
-    whosinbot::run_whosin_bot(token, database_url)
+    whosinbot::run_whosin_bot(token, database_url, database_timeout)
         .map_err(|error| {
             error!("An error has occurred: {}", error; "details" => format!("{:?}", error));
             error

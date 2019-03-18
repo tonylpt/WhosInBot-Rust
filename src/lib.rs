@@ -27,14 +27,20 @@ extern crate slog_scope;
 extern crate telegram_bot;
 extern crate tokio_core;
 
+use std::time::Duration;
+
 mod db;
 mod models;
 mod schema;
 mod telegram;
 mod util;
 
-pub fn run_whosin_bot(token: String, db_url: String) -> Result<(), failure::Error> {
-    let repository = db::PostgresRepository::new(&db_url)?;
+pub fn run_whosin_bot(
+    token: String,
+    db_url: String,
+    db_timeout: Duration,
+) -> Result<(), failure::Error> {
+    let repository = db::PostgresRepository::new(&db_url, db_timeout)?;
     let bot = telegram::WhosInBot::new(token, Box::new(repository));
 
     bot.run()?;
