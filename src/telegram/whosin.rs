@@ -18,10 +18,7 @@ pub struct WhosInBot {
 
 impl WhosInBot {
     pub fn new(token: String, repository: Box<dyn Repository>) -> WhosInBot {
-        WhosInBot {
-            token,
-            repository,
-        }
+        WhosInBot { token, repository }
     }
 
     pub fn run(&self) -> base_bot::BotResult {
@@ -70,10 +67,19 @@ impl WhosInBot {
                 }
             }
 
-            UpdateAttendanceSelf { chat_id, user_id, username, status, reason } => {
+            UpdateAttendanceSelf {
+                chat_id,
+                user_id,
+                username,
+                status,
+                reason,
+            } => {
                 info!("Setting own attendance for {} to '{}'", username, status);
                 let attendance = Attendance::new(status, reason);
-                match self.repository.set_response(chat_id, user_id, &username, &attendance)? {
+                match self
+                    .repository
+                    .set_response(chat_id, user_id, &username, &attendance)?
+                {
                     None => "No roll call in progress.".into(),
                     Some(ref call_with_responses) => {
                         let announcement = render_announcement(&username, status);
@@ -83,10 +89,18 @@ impl WhosInBot {
                 }
             }
 
-            UpdateAttendanceFor { chat_id, username, status, reason } => {
+            UpdateAttendanceFor {
+                chat_id,
+                username,
+                status,
+                reason,
+            } => {
                 info!("Setting attendance for {} to '{}'", username, status);
                 let attendance = Attendance::new(status, reason);
-                match self.repository.set_response_for(chat_id, &username, &attendance)? {
+                match self
+                    .repository
+                    .set_response_for(chat_id, &username, &attendance)?
+                {
                     None => "No roll call in progress.".into(),
                     Some(ref call_with_responses) => {
                         let announcement = render_announcement(&username, status);
@@ -105,9 +119,7 @@ impl WhosInBot {
                 }
             }
 
-            ListAvailableCommands => {
-                AVAILABLE_COMMANDS.clone()
-            }
+            ListAvailableCommands => AVAILABLE_COMMANDS.clone(),
         };
 
         Ok(response)
@@ -124,7 +136,6 @@ impl WhosInBot {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use mockers::{matchers::ANY, Scenario};
@@ -140,7 +151,10 @@ mod tests {
         let repo = scenario.create_mock_for::<Repository>();
 
         let call = create_call();
-        scenario.expect(repo.create_call_call(2, arg!("call title")).and_return(Ok(call)));
+        scenario.expect(
+            repo.create_call_call(2, arg!("call title"))
+                .and_return(Ok(call)),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -197,7 +211,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("No roll call in progress.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("No roll call in progress.".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -210,7 +227,10 @@ mod tests {
             ..create_call()
         };
 
-        scenario.expect(repo.update_title_call(2, arg!("new title")).and_return(Ok(Some(call))));
+        scenario.expect(
+            repo.update_title_call(2, arg!("new title"))
+                .and_return(Ok(Some(call))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -248,7 +268,10 @@ mod tests {
         let scenario = Scenario::new();
         let repo = scenario.create_mock_for::<Repository>();
 
-        scenario.expect(repo.update_title_call(2, arg!("new title")).and_return(Ok(None)));
+        scenario.expect(
+            repo.update_title_call(2, arg!("new title"))
+                .and_return(Ok(None)),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -260,7 +283,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("No roll call in progress.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("No roll call in progress.".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -275,7 +301,10 @@ mod tests {
 
         let responses = create_responses();
 
-        scenario.expect(repo.update_quiet_call(2, arg!(true)).and_return(Ok(Some((call, responses)))));
+        scenario.expect(
+            repo.update_quiet_call(2, arg!(true))
+                .and_return(Ok(Some((call, responses)))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -287,7 +316,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("Ok fine, I\'ll be quiet. 🤐".to_string()), result.unwrap());
+        assert_eq!(
+            Some("Ok fine, I\'ll be quiet. 🤐".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -298,8 +330,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.update_quiet_call(2, arg!(false))
-            .and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.update_quiet_call(2, arg!(false))
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -331,7 +365,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("No roll call in progress.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("No roll call in progress.".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -342,7 +379,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_call(2, 1, "David", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_call(2, 1, "David", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -366,7 +406,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_call(2, 1, "Daniel", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_call(2, 1, "Daniel", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -390,7 +433,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_call(2, 1, "Albert", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_call(2, 1, "Albert", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -411,7 +457,10 @@ mod tests {
         let scenario = Scenario::new();
         let repo = scenario.create_mock_for::<Repository>();
 
-        scenario.expect(repo.set_response_call(2, 1, "User 1", ANY).and_return(Ok(None)));
+        scenario.expect(
+            repo.set_response_call(2, 1, "User 1", ANY)
+                .and_return(Ok(None)),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -423,7 +472,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("No roll call in progress.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("No roll call in progress.".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -434,7 +486,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_for_call(2, "David", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_for_call(2, "David", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -458,7 +513,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_for_call(2, "Daniel", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_for_call(2, "Daniel", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -482,7 +540,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.set_response_for_call(2, "Albert", ANY).and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.set_response_for_call(2, "Albert", ANY)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -513,7 +574,10 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("Please provide the person's name.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("Please provide the person's name.".to_string()),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -524,8 +588,10 @@ mod tests {
         let call = create_call();
         let responses = create_responses();
 
-        scenario.expect(repo.get_call_with_responses_call(2)
-            .and_return(Ok(Some((call, responses.clone())))));
+        scenario.expect(
+            repo.get_call_with_responses_call(2)
+                .and_return(Ok(Some((call, responses.clone())))),
+        );
 
         let command = ChatCommand {
             chat_id: 2,
@@ -545,8 +611,7 @@ mod tests {
         let scenario = Scenario::new();
         let repo = scenario.create_mock_for::<Repository>();
 
-        scenario.expect(repo.get_call_with_responses_call(2)
-            .and_return(Ok(None)));
+        scenario.expect(repo.get_call_with_responses_call(2).and_return(Ok(None)));
 
         let command = ChatCommand {
             chat_id: 2,
@@ -558,6 +623,9 @@ mod tests {
 
         let bot = WhosInBot::new("".to_string(), Box::new(repo));
         let result = bot.handle(command);
-        assert_eq!(Some("No roll call in progress.".to_string()), result.unwrap());
+        assert_eq!(
+            Some("No roll call in progress.".to_string()),
+            result.unwrap()
+        );
     }
 }

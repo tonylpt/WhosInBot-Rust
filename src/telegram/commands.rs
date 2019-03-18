@@ -67,75 +67,92 @@ impl Command {
         use self::CommandParseError::*;
         use AttendanceStatus::*;
 
-        let ChatCommand { chat_id, user_id, username, command, command_params, .. } = chat_command;
+        let ChatCommand {
+            chat_id,
+            user_id,
+            username,
+            command,
+            command_params,
+            ..
+        } = chat_command;
 
         match command.as_ref() {
-            "/start_roll_call" =>
-                Ok(StartRollCall { chat_id, title: command_params }),
+            "/start_roll_call" => Ok(StartRollCall {
+                chat_id,
+                title: command_params,
+            }),
 
-            "/end_roll_call" =>
-                Ok(EndRollCall { chat_id }),
+            "/end_roll_call" => Ok(EndRollCall { chat_id }),
 
             "/set_title" => match command_params {
-                ref title if title.is_empty() =>
-                    Err(MissingTitle),
-                title =>
-                    Ok(UpdateTitle { chat_id, title }),
+                ref title if title.is_empty() => Err(MissingTitle),
+                title => Ok(UpdateTitle { chat_id, title }),
             },
 
-            "/shh" =>
-                Ok(UpdateQuiet { chat_id, quiet: true }),
+            "/shh" => Ok(UpdateQuiet {
+                chat_id,
+                quiet: true,
+            }),
 
-            "/louder" =>
-                Ok(UpdateQuiet { chat_id, quiet: false }),
+            "/louder" => Ok(UpdateQuiet {
+                chat_id,
+                quiet: false,
+            }),
 
-            "/in" =>
-                Ok(UpdateAttendanceSelf {
+            "/in" => Ok(UpdateAttendanceSelf {
+                chat_id,
+                user_id,
+                username,
+                status: In,
+                reason: command_params,
+            }),
+
+            "/out" => Ok(UpdateAttendanceSelf {
+                chat_id,
+                user_id,
+                username,
+                status: Out,
+                reason: command_params,
+            }),
+
+            "/maybe" => Ok(UpdateAttendanceSelf {
+                chat_id,
+                user_id,
+                username,
+                status: Maybe,
+                reason: command_params,
+            }),
+
+            "/set_in_for" => command_params
+                .parse()
+                .map(|NameAndReason(username, reason)| UpdateAttendanceFor {
                     chat_id,
-                    user_id,
                     username,
                     status: In,
-                    reason: command_params,
+                    reason,
                 }),
 
-            "/out" =>
-                Ok(UpdateAttendanceSelf {
+            "/set_out_for" => command_params
+                .parse()
+                .map(|NameAndReason(username, reason)| UpdateAttendanceFor {
                     chat_id,
-                    user_id,
                     username,
                     status: Out,
-                    reason: command_params,
+                    reason,
                 }),
 
-            "/maybe" =>
-                Ok(UpdateAttendanceSelf {
+            "/set_maybe_for" => command_params
+                .parse()
+                .map(|NameAndReason(username, reason)| UpdateAttendanceFor {
                     chat_id,
-                    user_id,
                     username,
                     status: Maybe,
-                    reason: command_params,
+                    reason,
                 }),
 
-            "/set_in_for" =>
-                command_params.parse().map(|NameAndReason(username, reason)| {
-                    UpdateAttendanceFor { chat_id, username, status: In, reason }
-                }),
+            "/whos_in" => Ok(GetAllAttendances { chat_id }),
 
-            "/set_out_for" =>
-                command_params.parse().map(|NameAndReason(username, reason)| {
-                    UpdateAttendanceFor { chat_id, username, status: Out, reason }
-                }),
-
-            "/set_maybe_for" =>
-                command_params.parse().map(|NameAndReason(username, reason)| {
-                    UpdateAttendanceFor { chat_id, username, status: Maybe, reason }
-                }),
-
-            "/whos_in" =>
-                Ok(GetAllAttendances { chat_id }),
-
-            "/available_commands" | "/start" =>
-                Ok(ListAvailableCommands),
+            "/available_commands" | "/start" => Ok(ListAvailableCommands),
 
             unknown => Err(InvalidCommand(unknown.to_owned())),
         }
@@ -146,8 +163,8 @@ impl Command {
 struct NameAndReason(String, String);
 
 lazy_static! {
-    static ref NAME_REASON_REGEX: Regex = Regex::new(r"^(\S+)\s*(.*)$")
-        .expect("Failed to create Regex");
+    static ref NAME_REASON_REGEX: Regex =
+        Regex::new(r"^(\S+)\s*(.*)$").expect("Failed to create Regex");
 }
 
 impl FromStr for NameAndReason {
@@ -169,7 +186,7 @@ mod tests {
     mod command_tests {
         use crate::models::AttendanceStatus::*;
 
-        use super::super::{*, Command::*};
+        use super::super::{Command::*, *};
 
         #[test]
         fn test_from_start_roll_calll_command() {
@@ -200,9 +217,7 @@ mod tests {
                 command_params: "whatever".to_string(),
             };
 
-            let expected = Ok(EndRollCall {
-                chat_id: 1,
-            });
+            let expected = Ok(EndRollCall { chat_id: 1 });
 
             let actual = Command::from_chat(input);
             assert_eq!(expected, actual);

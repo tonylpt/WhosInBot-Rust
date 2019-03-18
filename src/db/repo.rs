@@ -26,17 +26,29 @@ pub trait Repository {
 
     fn update_title(&self, chat_id: ChatId, new_title: &str) -> DatabaseResult<Option<RollCall>>;
 
-    fn update_quiet(&self, chat_id: ChatId, quiet: bool) -> DatabaseResult<Option<CallWithResponses>>;
+    fn update_quiet(
+        &self,
+        chat_id: ChatId,
+        quiet: bool,
+    ) -> DatabaseResult<Option<CallWithResponses>>;
 
-    fn set_response(&self, chat_id: ChatId,
-                    user_id: UserId, user_name: &str,
-                    attendance: &Attendance) -> DatabaseResult<Option<CallWithResponses>>;
+    fn set_response(
+        &self,
+        chat_id: ChatId,
+        user_id: UserId,
+        user_name: &str,
+        attendance: &Attendance,
+    ) -> DatabaseResult<Option<CallWithResponses>>;
 
-    fn set_response_for(&self, chat_id: ChatId,
-                        user_name: &str,
-                        attendance: &Attendance) -> DatabaseResult<Option<CallWithResponses>>;
+    fn set_response_for(
+        &self,
+        chat_id: ChatId,
+        user_name: &str,
+        attendance: &Attendance,
+    ) -> DatabaseResult<Option<CallWithResponses>>;
 
-    fn get_call_with_responses(&self, chat_id: ChatId) -> DatabaseResult<Option<CallWithResponses>>;
+    fn get_call_with_responses(&self, chat_id: ChatId)
+        -> DatabaseResult<Option<CallWithResponses>>;
 }
 
 pub struct PostgresRepository {
@@ -45,73 +57,66 @@ pub struct PostgresRepository {
 
 impl PostgresRepository {
     pub fn new(database_url: &str) -> DatabaseResult<Self> {
-        let pool = h::connect(database_url)
-            .map_err(DatabaseError::ConnectError)?;
+        let pool = h::connect(database_url).map_err(DatabaseError::ConnectError)?;
 
-        let repository = PostgresRepository {
-            pool,
-        };
+        let repository = PostgresRepository { pool };
         Ok(repository)
     }
 
-    fn exec_with_pool<T>(&self, exec: impl Fn(&h::PooledConnection) -> QueryResult<T>) -> DatabaseResult<T> {
+    fn exec_with_pool<T>(
+        &self,
+        exec: impl Fn(&h::PooledConnection) -> QueryResult<T>,
+    ) -> DatabaseResult<T> {
         let pool = self.pool.clone();
-        let connection = pool.get()
-            .map_err(DatabaseError::ConnectError)?;
-        exec(&connection)
-            .map_err(DatabaseError::QueryError)
+        let connection = pool.get().map_err(DatabaseError::ConnectError)?;
+        exec(&connection).map_err(DatabaseError::QueryError)
     }
 }
 
 impl Repository for PostgresRepository {
     fn create_call(&self, chat_id: ChatId, title: &str) -> DatabaseResult<RollCall> {
-        self.exec_with_pool(|conn|
-            h::create_call(conn, chat_id, title)
-        )
+        self.exec_with_pool(|conn| h::create_call(conn, chat_id, title))
     }
 
     fn end_call(&self, chat_id: ChatId) -> DatabaseResult<Option<RollCall>> {
-        self.exec_with_pool(|conn|
-            h::end_call(conn, chat_id)
-        )
+        self.exec_with_pool(|conn| h::end_call(conn, chat_id))
     }
 
     fn update_title(&self, chat_id: ChatId, new_title: &str) -> DatabaseResult<Option<RollCall>> {
-        self.exec_with_pool(|conn|
-            h::update_title(conn, chat_id, new_title)
-        )
+        self.exec_with_pool(|conn| h::update_title(conn, chat_id, new_title))
     }
 
-    fn update_quiet(&self, chat_id: ChatId, quiet: bool) -> DatabaseResult<Option<CallWithResponses>> {
-        self.exec_with_pool(|conn|
-            h::update_quiet(conn, chat_id, quiet)
-        )
+    fn update_quiet(
+        &self,
+        chat_id: ChatId,
+        quiet: bool,
+    ) -> DatabaseResult<Option<CallWithResponses>> {
+        self.exec_with_pool(|conn| h::update_quiet(conn, chat_id, quiet))
     }
 
-    fn set_response(&self,
-                    chat_id: ChatId,
-                    user_id: UserId,
-                    user_name: &str,
-                    attendance: &Attendance) -> DatabaseResult<Option<CallWithResponses>>
-    {
-        self.exec_with_pool(|conn|
-            h::set_response(conn, chat_id, user_id, user_name, attendance)
-        )
+    fn set_response(
+        &self,
+        chat_id: ChatId,
+        user_id: UserId,
+        user_name: &str,
+        attendance: &Attendance,
+    ) -> DatabaseResult<Option<CallWithResponses>> {
+        self.exec_with_pool(|conn| h::set_response(conn, chat_id, user_id, user_name, attendance))
     }
 
-    fn set_response_for(&self,
-                        chat_id: ChatId,
-                        user_name: &str,
-                        attendance: &Attendance) -> DatabaseResult<Option<CallWithResponses>>
-    {
-        self.exec_with_pool(|conn|
-            h::set_response_for(conn, chat_id, user_name, attendance)
-        )
+    fn set_response_for(
+        &self,
+        chat_id: ChatId,
+        user_name: &str,
+        attendance: &Attendance,
+    ) -> DatabaseResult<Option<CallWithResponses>> {
+        self.exec_with_pool(|conn| h::set_response_for(conn, chat_id, user_name, attendance))
     }
 
-    fn get_call_with_responses(&self, chat_id: ChatId) -> DatabaseResult<Option<CallWithResponses>> {
-        self.exec_with_pool(|conn|
-            h::get_call_with_responses(conn, chat_id)
-        )
+    fn get_call_with_responses(
+        &self,
+        chat_id: ChatId,
+    ) -> DatabaseResult<Option<CallWithResponses>> {
+        self.exec_with_pool(|conn| h::get_call_with_responses(conn, chat_id))
     }
 }

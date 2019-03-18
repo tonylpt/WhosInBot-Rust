@@ -1,4 +1,4 @@
-use crate::models::{*, AttendanceStatus::*};
+use crate::models::{AttendanceStatus::*, *};
 use crate::util::collections::*;
 
 lazy_static! {
@@ -19,7 +19,7 @@ fn render_available_commands() -> String {
         "set_out_for",
         "set_maybe_for",
         "whos_in",
-        "available_commands"
+        "available_commands",
     ];
 
     let list = cmds
@@ -58,7 +58,10 @@ pub fn render_responses_short(responses: &[RollCallResponse]) -> String {
     let out_count = count_by_status.get(&Out).unwrap_or(&0_usize);
     let maybe_count = count_by_status.get(&Maybe).unwrap_or(&0_usize);
 
-    format!("Total: {} in, {} out, {} might come.", in_count, out_count, maybe_count)
+    format!(
+        "Total: {} in, {} out, {} might come.",
+        in_count, out_count, maybe_count
+    )
 }
 
 pub fn render_responses_full(responses: &[RollCallResponse]) -> String {
@@ -130,7 +133,7 @@ mod tests {
             "/set_out_for",
             "/set_maybe_for",
             "/whos_in",
-            "/available_commands"
+            "/available_commands",
         ];
 
         for cmd in cmds.iter() {

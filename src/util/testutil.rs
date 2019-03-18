@@ -1,12 +1,15 @@
 use slog::Logger;
 use slog_scope;
 
-pub fn with_test_logger<R, F>(func: F) -> R where F: Fn(&Logger) -> R {
+pub fn with_test_logger<R, F>(func: F) -> R
+where
+    F: Fn(&Logger) -> R,
+{
     func(&slog_scope::logger())
 }
 
 pub mod factories {
-    use crate::models::{*, AttendanceStatus::*, CallStatus::*};
+    use crate::models::{AttendanceStatus::*, CallStatus::*, *};
 
     pub fn create_call() -> RollCall {
         let now = chrono::Utc::now().naive_local();
@@ -21,7 +24,6 @@ pub mod factories {
             updated_at: now,
         }
     }
-
 
     pub fn create_quiet_call() -> RollCall {
         RollCall {

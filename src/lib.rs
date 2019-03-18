@@ -27,12 +27,11 @@ extern crate slog_scope;
 extern crate telegram_bot;
 extern crate tokio_core;
 
-mod schema;
-mod models;
 mod db;
-mod util;
+mod models;
+mod schema;
 mod telegram;
-
+mod util;
 
 pub fn run_whosin_bot(token: String, db_url: String) -> Result<(), failure::Error> {
     let repository = db::PostgresRepository::new(&db_url)?;

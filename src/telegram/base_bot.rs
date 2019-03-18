@@ -17,7 +17,8 @@ pub struct ChatCommand {
 pub type BotResult = Result<(), failure::Error>;
 
 pub fn run<F>(token: &str, handler: F) -> BotResult
-    where F: Fn(ChatCommand) -> Result<Option<String>, failure::Error>
+where
+    F: Fn(ChatCommand) -> Result<Option<String>, failure::Error>,
 {
     let mut core = Core::new().map_err(SyncFailure::new)?;
     let api = Api::configure(token)
@@ -40,7 +41,8 @@ pub fn run<F>(token: &str, handler: F) -> BotResult
 }
 
 fn handle_message<F>(handler: &F, message: &Message, logger: &slog::Logger) -> Option<String>
-    where F: Fn(ChatCommand) -> Result<Option<String>, failure::Error>
+where
+    F: Fn(ChatCommand) -> Result<Option<String>, failure::Error>,
 {
     if let Some(command) = parse_message(message) {
         let chat_id = command.chat_id;
@@ -56,32 +58,25 @@ fn handle_message<F>(handler: &F, message: &Message, logger: &slog::Logger) -> O
             "user_id" => user_id,
         ));
 
-        let handle = || {
-            match handler(command) {
-                Ok(Some(reply)) =>
-                    Some(reply),
-                Ok(None) =>
-                    None,
-                Err(err) => {
-                    error!("An error has occurred: {}", err; "details" => format!("{:?}", err));
-                    sentry::integrations::failure::capture_error(&err);
-                    Some("An error has occurred.".to_string())
-                }
+        let handle = || match handler(command) {
+            Ok(Some(reply)) => Some(reply),
+            Ok(None) => None,
+            Err(err) => {
+                error!("An error has occurred: {}", err; "details" => format!("{:?}", err));
+                sentry::integrations::failure::capture_error(&err);
+                Some("An error has occurred.".to_string())
             }
         };
 
-        return sentry::with_scope(sentry_scope, || {
-            slog_scope::scope(logger_scope, handle)
-        });
+        return sentry::with_scope(sentry_scope, || slog_scope::scope(logger_scope, handle));
     }
 
     None
 }
 
-
 lazy_static! {
-    static ref COMMAND_REGEX: Regex = Regex::new(r"^(/[^@[:space:]]+)(@\S*)?\s*(.*)$")
-        .expect("Failed to create Regex");
+    static ref COMMAND_REGEX: Regex =
+        Regex::new(r"^(/[^@[:space:]]+)(@\S*)?\s*(.*)$").expect("Failed to create Regex");
 }
 
 fn parse_message(message: &Message) -> Option<ChatCommand> {
@@ -172,7 +167,10 @@ mod tests {
             assert_eq!(None, parse_message(&build_message("")));
             assert_eq!(None, parse_message(&build_message("  ")));
             assert_eq!(None, parse_message(&build_message("invalid")));
-            assert_eq!(None, parse_message(&build_message("invalid /invalid command params")));
+            assert_eq!(
+                None,
+                parse_message(&build_message("invalid /invalid command params"))
+            );
         }
     }
 
@@ -183,30 +181,26 @@ mod tests {
         fn test_handle_message_with_success_result() {
             let message = build_message("/command params");
             let handler = |command: ChatCommand| {
-                Ok(Some(format!("response to {} {} from {} in chat {}",
-                                command.command,
-                                command.command_params,
-                                command.user_id,
-                                command.chat_id)))
+                Ok(Some(format!(
+                    "response to {} {} from {} in chat {}",
+                    command.command, command.command_params, command.user_id, command.chat_id
+                )))
             };
 
-            let result = with_test_logger(|logger| {
-                handle_message(&handler, &message, logger)
-            });
+            let result = with_test_logger(|logger| handle_message(&handler, &message, logger));
 
-            assert_eq!(Some("response to /command params from 12345 in chat 123".to_string()), result);
+            assert_eq!(
+                Some("response to /command params from 12345 in chat 123".to_string()),
+                result
+            );
         }
 
         #[test]
         fn test_handle_message_with_empty_result() {
             let message = build_message("/command params");
-            let handler = |_: ChatCommand| {
-                Ok(None)
-            };
+            let handler = |_: ChatCommand| Ok(None);
 
-            let result = with_test_logger(|logger| {
-                handle_message(&handler, &message, logger)
-            });
+            let result = with_test_logger(|logger| handle_message(&handler, &message, logger));
 
             assert_eq!(None, result);
         }
@@ -214,13 +208,9 @@ mod tests {
         #[test]
         fn test_handle_message_with_error_result() {
             let message = build_message("/command params");
-            let handler = |_: ChatCommand| {
-                bail!("mock error")
-            };
+            let handler = |_: ChatCommand| bail!("mock error");
 
-            let result = with_test_logger(|logger| {
-                handle_message(&handler, &message, logger)
-            });
+            let result = with_test_logger(|logger| handle_message(&handler, &message, logger));
 
             assert_eq!(Some("An error has occurred.".to_string()), result);
         }

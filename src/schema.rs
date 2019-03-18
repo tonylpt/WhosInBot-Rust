@@ -26,7 +26,4 @@ table! {
 
 joinable!(w_roll_call_responses -> w_roll_calls (roll_call_id));
 
-allow_tables_to_appear_in_same_query!(
-    w_roll_call_responses,
-    w_roll_calls,
-);
+allow_tables_to_appear_in_same_query!(w_roll_call_responses, w_roll_calls,);

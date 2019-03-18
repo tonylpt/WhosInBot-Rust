@@ -36,11 +36,12 @@ pub struct NewRollCallResponse<'a> {
 }
 
 impl<'a> NewRollCallResponse<'a> {
-    pub fn new_self(call_id: CallId,
-                    user_id: UserId,
-                    user_name: &'a str,
-                    attendance: &'a Attendance) -> NewRollCallResponse<'a>
-    {
+    pub fn new_self(
+        call_id: CallId,
+        user_id: UserId,
+        user_name: &'a str,
+        attendance: &'a Attendance,
+    ) -> NewRollCallResponse<'a> {
         assert!(user_id > 0);
 
         let unique_token = format!("self:{}", Self::hash(&user_id.to_string()));
@@ -58,10 +59,11 @@ impl<'a> NewRollCallResponse<'a> {
         }
     }
 
-    pub fn new_for(call_id: CallId,
-                   user_name: &'a str,
-                   attendance: &'a Attendance) -> NewRollCallResponse<'a>
-    {
+    pub fn new_for(
+        call_id: CallId,
+        user_name: &'a str,
+        attendance: &'a Attendance,
+    ) -> NewRollCallResponse<'a> {
         assert!(!user_name.is_empty());
 
         let unique_token = format!("for:{}", Self::hash(&user_name.to_lowercase()));
@@ -96,10 +98,11 @@ pub struct UpdateRollCallResponse<'a> {
 }
 
 impl<'a> UpdateRollCallResponse<'a> {
-    pub fn new(user_name: &'a str,
-               status: AttendanceStatus,
-               reason: &'a str) -> UpdateRollCallResponse<'a>
-    {
+    pub fn new(
+        user_name: &'a str,
+        status: AttendanceStatus,
+        reason: &'a str,
+    ) -> UpdateRollCallResponse<'a> {
         let now = Utc::now().naive_local();
         UpdateRollCallResponse {
             user_name: Some(user_name),

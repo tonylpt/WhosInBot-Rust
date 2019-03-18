@@ -15,16 +15,12 @@ pub struct Attendance {
 
 impl Attendance {
     pub fn new(status: AttendanceStatus, reason: String) -> Attendance {
-        Attendance {
-            status,
-            reason,
-        }
+        Attendance { status, reason }
     }
 }
 
 /** Boilerplate to enable enum in database model. */
-#[derive(AsExpression, FromSqlRow)]
-#[derive(Hash, Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(AsExpression, FromSqlRow, Hash, Debug, PartialEq, Eq, Copy, Clone)]
 #[sql_type = "Text"]
 pub enum AttendanceStatus {
     In,
@@ -34,11 +30,15 @@ pub enum AttendanceStatus {
 
 impl fmt::Display for AttendanceStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match *self {
-            AttendanceStatus::In => "IN",
-            AttendanceStatus::Out => "OUT",
-            AttendanceStatus::Maybe => "MAYBE",
-        })
+        write!(
+            f,
+            "{}",
+            match *self {
+                AttendanceStatus::In => "IN",
+                AttendanceStatus::Out => "OUT",
+                AttendanceStatus::Maybe => "MAYBE",
+            }
+        )
     }
 }
 
@@ -55,8 +55,9 @@ impl FromStr for AttendanceStatus {
 }
 
 impl<DB> ToSql<Text, DB> for AttendanceStatus
-    where DB: Backend,
-          String: ToSql<Text, DB>
+where
+    DB: Backend,
+    String: ToSql<Text, DB>,
 {
     fn to_sql<W: Write>(&self, out: &mut Output<W, DB>) -> serialize::Result {
         self.to_string().to_sql(out)
@@ -64,8 +65,9 @@ impl<DB> ToSql<Text, DB> for AttendanceStatus
 }
 
 impl<DB> FromSql<Text, DB> for AttendanceStatus
-    where DB: Backend,
-          String: FromSql<Text, DB>
+where
+    DB: Backend,
+    String: FromSql<Text, DB>,
 {
     fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
         String::from_sql(bytes)?
@@ -73,7 +75,6 @@ impl<DB> FromSql<Text, DB> for AttendanceStatus
             .map_err(|e| e.into())
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -90,7 +91,10 @@ mod tests {
     fn test_status_from_valid_string() -> Result<(), String> {
         assert_eq!(AttendanceStatus::In, "IN".parse::<AttendanceStatus>()?);
         assert_eq!(AttendanceStatus::Out, "OUT".parse::<AttendanceStatus>()?);
-        assert_eq!(AttendanceStatus::Maybe, "MAYBE".parse::<AttendanceStatus>()?);
+        assert_eq!(
+            AttendanceStatus::Maybe,
+            "MAYBE".parse::<AttendanceStatus>()?
+        );
         Ok(())
     }
 

@@ -9,8 +9,9 @@ pub fn first<T>(collection: Vec<T>) -> Option<T> {
 }
 
 pub fn group_by<T, K, F>(collection: &[T], group_key_fn: F) -> HashMap<K, Vec<&T>>
-    where K: Hash + Eq,
-          F: Fn(&T) -> K
+where
+    K: Hash + Eq,
+    F: Fn(&T) -> K,
 {
     collection
         .iter()
@@ -19,14 +20,13 @@ pub fn group_by<T, K, F>(collection: &[T], group_key_fn: F) -> HashMap<K, Vec<&T
 }
 
 pub fn map_values<K, V1, V2, F>(collection: HashMap<K, V1>, map_fn: F) -> HashMap<K, V2>
-    where K: Hash + Eq,
-          F: Fn(V1) -> V2
+where
+    K: Hash + Eq,
+    F: Fn(V1) -> V2,
 {
     collection
         .into_iter()
-        .map(|(key, value)| {
-            (key, map_fn(value))
-        })
+        .map(|(key, value)| (key, map_fn(value)))
         .collect()
 }
 
