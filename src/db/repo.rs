@@ -46,7 +46,7 @@ pub struct PostgresRepository {
 impl PostgresRepository {
     pub fn new(database_url: &str) -> DatabaseResult<Self> {
         let pool = h::connect(database_url)
-            .map_err(|err| DatabaseError::ConnectError(err))?;
+            .map_err(DatabaseError::ConnectError)?;
 
         let repository = PostgresRepository {
             pool,
@@ -57,9 +57,9 @@ impl PostgresRepository {
     fn exec_with_pool<T>(&self, exec: impl Fn(&h::PooledConnection) -> QueryResult<T>) -> DatabaseResult<T> {
         let pool = self.pool.clone();
         let connection = pool.get()
-            .map_err(|err| DatabaseError::ConnectError(err))?;
+            .map_err(DatabaseError::ConnectError)?;
         exec(&connection)
-            .map_err(|err| DatabaseError::QueryError(err))
+            .map_err(DatabaseError::QueryError)
     }
 }
 

@@ -188,7 +188,7 @@ fn set_response_base<'a, F>(conn: &PgConnection,
     };
 
     let record = value_fn(open_call.id);
-    let update = UpdateRollCallResponse::new(record.user_name, record.status, record.reason.as_ref());
+    let update = UpdateRollCallResponse::new(record.user_name, record.status, record.reason);
 
     use schema::w_roll_call_responses::{table, dsl};
     let inserted = diesel::insert_into(table)

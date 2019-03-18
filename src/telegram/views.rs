@@ -49,7 +49,7 @@ pub fn render_responses(call_with_responses: &CallWithResponses) -> String {
     }
 }
 
-pub fn render_responses_short(responses: &Vec<RollCallResponse>) -> String {
+pub fn render_responses_short(responses: &[RollCallResponse]) -> String {
     let responses_by_status = group_by(responses, |response| response.status);
     let count_by_status = map_values(responses_by_status, |responses| responses.len());
 
@@ -61,7 +61,7 @@ pub fn render_responses_short(responses: &Vec<RollCallResponse>) -> String {
     format!("Total: {} in, {} out, {} might come.", in_count, out_count, maybe_count)
 }
 
-pub fn render_responses_full(responses: &Vec<RollCallResponse>) -> String {
+pub fn render_responses_full(responses: &[RollCallResponse]) -> String {
     fn get_response_line(response: &RollCallResponse) -> String {
         let user_name = response.user_name.as_ref().map_or("", |s| s.as_str());
         match response.reason.as_ref() {

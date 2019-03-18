@@ -55,6 +55,7 @@ pub struct UpdateRollCall<'a> {
 }
 
 impl<'a> UpdateRollCall<'a> {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> UpdateRollCall<'static> {
         UpdateRollCall {
             status: None,

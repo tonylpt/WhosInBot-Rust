@@ -8,7 +8,7 @@ pub fn first<T>(collection: Vec<T>) -> Option<T> {
     collection.into_iter().next()
 }
 
-pub fn group_by<T, K, F>(collection: &Vec<T>, group_key_fn: F) -> HashMap<K, Vec<&T>>
+pub fn group_by<T, K, F>(collection: &[T], group_key_fn: F) -> HashMap<K, Vec<&T>>
     where K: Hash + Eq,
           F: Fn(&T) -> K
 {

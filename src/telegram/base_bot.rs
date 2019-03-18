@@ -19,10 +19,10 @@ pub type BotResult = Result<(), failure::Error>;
 pub fn run<F>(token: &str, handler: F) -> BotResult
     where F: Fn(ChatCommand) -> Result<Option<String>, failure::Error>
 {
-    let mut core = Core::new().map_err(|e| SyncFailure::new(e))?;
+    let mut core = Core::new().map_err(SyncFailure::new)?;
     let api = Api::configure(token)
         .build(core.handle())
-        .map_err(|e| SyncFailure::new(e))?;
+        .map_err(SyncFailure::new)?;
 
     let logger = slog_scope::logger();
 
