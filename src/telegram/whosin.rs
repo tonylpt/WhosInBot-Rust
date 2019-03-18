@@ -11,18 +11,18 @@ use super::commands::{
 };
 use super::views::*;
 
-pub struct WhosInBot {
-    token: String,
+pub struct WhosInBot<'a> {
+    token: &'a str,
     repository: Box<dyn Repository>,
 }
 
-impl WhosInBot {
-    pub fn new(token: String, repository: Box<dyn Repository>) -> WhosInBot {
+impl<'a> WhosInBot<'a> {
+    pub fn new(token: &str, repository: Box<dyn Repository>) -> WhosInBot {
         WhosInBot { token, repository }
     }
 
     pub fn run(&self) -> base_bot::BotResult {
-        base_bot::run(&self.token, |cmd| self.handle(cmd))
+        base_bot::run(self.token, |cmd| self.handle(cmd))
     }
 
     fn handle(&self, chat_command: ChatCommand) -> Result<Option<String>, Error> {
@@ -164,7 +164,7 @@ mod tests {
             command_params: "call title".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(Some("Roll call started.".to_string()), result.unwrap());
     }
@@ -189,7 +189,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(Some("Roll call ended.".to_string()), result.unwrap());
     }
@@ -209,7 +209,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("No roll call in progress.".to_string()),
@@ -240,7 +240,7 @@ mod tests {
             command_params: "new title".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(Some("Roll call title set.".to_string()), result.unwrap());
     }
@@ -258,7 +258,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(Some("Please provide a title.".to_string()), result.unwrap());
     }
@@ -281,7 +281,7 @@ mod tests {
             command_params: "new title".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("No roll call in progress.".to_string()),
@@ -314,7 +314,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("Ok fine, I\'ll be quiet. 🤐".to_string()),
@@ -343,7 +343,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains(&render_responses_full(&responses)));
     }
@@ -363,7 +363,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("No roll call in progress.".to_string()),
@@ -392,7 +392,7 @@ mod tests {
             command_params: "will come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("David (will come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -419,7 +419,7 @@ mod tests {
             command_params: "won't come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("Daniel (won't come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -446,7 +446,7 @@ mod tests {
             command_params: "might come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("David (will come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -470,7 +470,7 @@ mod tests {
             command_params: "will come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("No roll call in progress.".to_string()),
@@ -499,7 +499,7 @@ mod tests {
             command_params: "David will come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("David (will come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -526,7 +526,7 @@ mod tests {
             command_params: "Daniel won't come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("Daniel (won't come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -553,7 +553,7 @@ mod tests {
             command_params: "Albert might come".to_string(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains("Albert (might come)"));
         assert!(result.contains(&render_responses_full(&responses)));
@@ -572,7 +572,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("Please provide the person's name.".to_string()),
@@ -601,7 +601,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result: String = bot.handle(command).unwrap().unwrap();
         assert!(result.contains(&render_responses_full(&responses)));
     }
@@ -621,7 +621,7 @@ mod tests {
             command_params: String::new(),
         };
 
-        let bot = WhosInBot::new("".to_string(), Box::new(repo));
+        let bot = WhosInBot::new("", Box::new(repo));
         let result = bot.handle(command);
         assert_eq!(
             Some("No roll call in progress.".to_string()),

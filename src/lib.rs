@@ -39,8 +39,8 @@ pub mod util;
 
 pub fn run_whosin_bot(settings: &settings::Settings) -> Result<(), failure::Error> {
     let timeout = std::time::Duration::from_millis(settings.database.timeout_ms);
-    let repository = db::PostgresRepository::new(&settings.database.url.clone(), timeout)?;
-    let bot = telegram::WhosInBot::new(settings.telegram.token.clone(), Box::new(repository));
+    let repository = db::PostgresRepository::new(&settings.database.url, timeout)?;
+    let bot = telegram::WhosInBot::new(&settings.telegram.token, Box::new(repository));
 
     bot.run()?;
     Ok(())
