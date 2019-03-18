@@ -1,3 +1,4 @@
+extern crate failure;
 extern crate sentry;
 #[macro_use]
 extern crate slog;
@@ -5,8 +6,9 @@ extern crate slog_async;
 extern crate slog_json;
 #[macro_use]
 extern crate slog_scope;
-extern crate failure;
 extern crate whosinbot;
+
+use whosinbot::util::result::*;
 
 fn create_logger() -> slog::Logger {
     use slog::Drain;
@@ -23,9 +25,8 @@ fn main() -> Result<(), failure::Error> {
     let _slog_guard = slog_scope::set_global_logger(create_logger());
 
     info!("Loading configuration...");
-    let config = whosinbot::settings::Settings::main().map_err(|error| {
+    let config = whosinbot::settings::Settings::main().on_err(|error| {
         error!("Error loading configuration: {}", error; "details" => format!("{:?}", error));
-        error
     })?;
 
     let _sentry_guard = sentry::init(config.sentry.dsn.clone());
@@ -33,8 +34,7 @@ fn main() -> Result<(), failure::Error> {
     sentry::integrations::panic::register_panic_handler();
 
     info!("Starting bot...");
-    whosinbot::run_whosin_bot(&config).map_err(|error| {
+    whosinbot::run_whosin_bot(&config).on_err(|error| {
         error!("An error has occurred: {}", error; "details" => format!("{:?}", error));
-        error
     })
 }
