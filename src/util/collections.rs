@@ -1,6 +1,6 @@
 use std::cmp::Eq;
 use std::collections::HashMap;
-use std::hash::Hash;
+use std::hash::{BuildHasher, Hash};
 
 use itertools::Itertools;
 
@@ -19,8 +19,9 @@ where
         .into_group_map()
 }
 
-pub fn map_values<K, V1, V2, F>(collection: HashMap<K, V1>, map_fn: F) -> HashMap<K, V2>
+pub fn map_values<K, V1, V2, S, F>(collection: HashMap<K, V1, S>, map_fn: F) -> HashMap<K, V2>
 where
+    S: BuildHasher,
     K: Hash + Eq,
     F: Fn(V1) -> V2,
 {
