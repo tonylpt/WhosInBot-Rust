@@ -43,3 +43,31 @@ impl Settings {
         s.try_into()
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use std::env;
+
+    use super::*;
+
+    #[test]
+    fn test_load_main_settings_from_env() -> Result<(), failure::Error> {
+        env::set_var("WHOSIN_DATABASE_URL", "postgres://test.db");
+        env::set_var("WHOSIN_TELEGRAM_TOKEN", "telegram_token");
+
+        let settings = Settings::main()?;
+        assert_eq!("postgres://test.db", settings.database.url);
+        assert_eq!("telegram_token", settings.telegram.token);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_test_settings_with_fallback() -> Result<(), failure::Error> {
+        let settings = Settings::test()?;
+        assert_eq!(5000, settings.database.timeout_ms);
+
+        Ok(())
+    }
+}
