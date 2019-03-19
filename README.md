@@ -48,16 +48,17 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
 
 2. [Create a Telegram bot](https://core.telegram.org/bots#creating-a-new-bot) for development and obtain the authorization token.
 3. Copy `config/main.template.toml` to `config/main.toml` and fill in the Telegram token.        
-4. Start the development PostgreSQL and Redis with Docker Compose:
+4. Start the development PostgreSQL with Docker Compose:
 
         docker-compose up -d
         
-   This automatically creates `whosin_dev` and `whosin_test` databases.
+   This automatically creates `whosin_dev` database with DATABASE_URL=`postgres://whosin:p%40ssw0rd@localhost:35432/whosin_dev`.
    
    
 ### Development
 1. Apply dev database migrations:
 
+        DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
         diesel migration run
         
 2. Run tests (which require Nightly Rust):
