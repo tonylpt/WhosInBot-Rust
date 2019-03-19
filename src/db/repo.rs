@@ -59,7 +59,7 @@ pub struct PostgresRepository {
 
 impl PostgresRepository {
     pub fn new(database_url: &str, timeout: Duration) -> DatabaseResult<Self> {
-        let pool = h::connect(database_url, timeout).map_err(DatabaseError::ConnectError)?;
+        let pool = h::create_pool(database_url, timeout).map_err(DatabaseError::ConnectError)?;
 
         let repository = PostgresRepository { pool };
         Ok(repository)

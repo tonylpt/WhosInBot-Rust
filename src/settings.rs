@@ -44,7 +44,6 @@ impl Settings {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::env;

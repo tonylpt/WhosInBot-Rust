@@ -42,24 +42,25 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
 
 
 ### Setup
-1. Install [Diesel ORM CLI](http://diesel.rs/guides/getting-started/):
+1. Install [Diesel ORM CLI](http://diesel.rs/guides/getting-started/) (optional):
 
         cargo install diesel_cli --no-default-features --features postgres
 
 2. [Create a Telegram bot](https://core.telegram.org/bots#creating-a-new-bot) for development and obtain the authorization token.
-3. Copy `config/main.template.toml` to `config/main.toml` and fill in the Telegram token.        
+
+3. Copy `config/main.template.toml` to `config/main.toml` and fill in the Telegram token.  
+      
 4. Start the development PostgreSQL with Docker Compose:
 
         docker-compose up -d
         
-   This automatically creates `whosin_dev` database with DATABASE_URL=`postgres://whosin:p%40ssw0rd@localhost:35432/whosin_dev`.
+   This automatically creates the `whosin_dev` database.
    
    
 ### Development
 1. Apply dev database migrations:
 
-        DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
-        diesel migration run
+        cargo run --bin migrate
         
 2. Run tests (which require Nightly Rust):
 
@@ -67,17 +68,25 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
         
 3. Run the app:
 
-        cargo run
+        cargo run --bin whosinbot
         
 
 ### Release
 1. Build for Release (optimized):
 
         cargo build --release
+   
+   This generates the Release binaries for `whosinbot` and `migrate` in `target/release`.
         
-2. Run the Release build:
+2. Apply database migrations:
 
-        WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
-        WHOSIN_TELEGRAM_TOKEN=[TELEGRAM_TOKEN] \
-        WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
+        env WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+            WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
+        target/release/migrate
+        
+3. Run the Release build:
+
+        env WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+            WHOSIN_TELEGRAM_TOKEN=[TELEGRAM_TOKEN] \
+            WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
         target/release/whosinbot

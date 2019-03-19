@@ -6,6 +6,8 @@ extern crate crypto;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
+extern crate diesel_migrations;
+#[macro_use]
 extern crate failure;
 extern crate futures;
 extern crate itertools;
@@ -43,5 +45,10 @@ pub fn run_whosin_bot(settings: &settings::Settings) -> Result<(), failure::Erro
     let bot = telegram::WhosInBot::new(&settings.telegram.token, Box::new(repository));
 
     bot.run()?;
+    Ok(())
+}
+
+pub fn migrate_db(settings: &settings::Settings) -> Result<(), failure::Error> {
+    db::migrate(&settings.database.url)?;
     Ok(())
 }

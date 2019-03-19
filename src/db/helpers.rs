@@ -14,12 +14,17 @@ pub type Manager = ConnectionManager<PgConnection>;
 pub type Pool = r2d2::Pool<Manager>;
 pub type PooledConnection = r2d2::PooledConnection<Manager>;
 pub type PoolResult = Result<Pool, r2d2::Error>;
+pub type ConnectionResult = diesel::ConnectionResult<PgConnection>;
 
-pub fn connect(database_url: &str, timeout: Duration) -> PoolResult {
+pub fn create_pool(database_url: &str, timeout: Duration) -> PoolResult {
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     r2d2::Pool::builder()
         .connection_timeout(timeout)
         .build(manager)
+}
+
+pub fn create_connection(database_url: &str) -> ConnectionResult {
+    PgConnection::establish(database_url)
 }
 
 pub fn create_call(conn: &PgConnection, chat_id: ChatId, title: &str) -> QueryResult<RollCall> {

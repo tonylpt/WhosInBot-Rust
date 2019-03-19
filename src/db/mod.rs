@@ -1,7 +1,6 @@
-mod helpers;
-mod repo;
-
+pub use migration::migrate;
 pub use repo::{DatabaseResult, PostgresRepository, Repository};
 
-// todo remove this
-pub use helpers::*;
+mod helpers;
+mod migration;
+mod repo;
