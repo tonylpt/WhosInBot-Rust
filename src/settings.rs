@@ -29,7 +29,7 @@ impl Settings {
 
         s.merge(File::with_name("config/default"))?;
         s.merge(File::with_name("config/main").required(false))?;
-        s.merge(Environment::with_prefix("whosin").separator("_"))?;
+        s.merge(Environment::new().separator("_"))?;
 
         s.try_into()
     }
@@ -52,8 +52,8 @@ mod tests {
 
     #[test]
     fn test_load_main_settings_from_env() -> Result<(), failure::Error> {
-        env::set_var("WHOSIN_DATABASE_URL", "postgres://test.db");
-        env::set_var("WHOSIN_TELEGRAM_TOKEN", "telegram_token");
+        env::set_var("DATABASE_URL", "postgres://test.db");
+        env::set_var("TELEGRAM_TOKEN", "telegram_token");
 
         let settings = Settings::main()?;
         assert_eq!("postgres://test.db", settings.database.url);

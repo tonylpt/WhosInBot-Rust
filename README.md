@@ -80,13 +80,13 @@ Refer to the original [WhosInBot](https://github.com/col/whos_in_bot/blob/master
         
 2. Apply database migrations:
 
-        env WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
-            WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
+        env DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+            SENTRY_DSN=[SENTRY_DSN] \
         target/release/migrate
         
 3. Run the Release build:
 
-        env WHOSIN_DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
-            WHOSIN_TELEGRAM_TOKEN=[TELEGRAM_TOKEN] \
-            WHOSIN_SENTRY_DSN=[SENTRY_DSN] \
+        env DATABASE_URL=postgres://[DB_USER]:[DB_PASSWORD]@[DB_HOST:DB_PORT]/[DB_NAME] \
+            TELEGRAM_TOKEN=[TELEGRAM_TOKEN] \
+            SENTRY_DSN=[SENTRY_DSN] \
         target/release/whosinbot
