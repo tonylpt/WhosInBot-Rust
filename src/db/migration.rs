@@ -16,8 +16,8 @@ pub enum MigrationError {
 pub type MigrationResult = Result<(), MigrationError>;
 
 pub fn migrate(database_url: &str) -> MigrationResult {
-    let connection = helpers::create_connection(database_url)
-        .map_err(MigrationError::ConnectError)?;
+    let connection =
+        helpers::create_connection(database_url).map_err(MigrationError::ConnectError)?;
 
     embedded_migrations::run_with_output(&connection, &mut std::io::stdout())
         .map_err(MigrationError::MigrationError)?;

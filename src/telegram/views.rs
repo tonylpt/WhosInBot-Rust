@@ -1,5 +1,5 @@
 use crate::models::{AttendanceStatus::*, *};
-use crate::util::collections::*;
+use crate::util::collections::CollectionTools;
 
 lazy_static! {
     pub static ref AVAILABLE_COMMANDS: String = render_available_commands();
@@ -50,8 +50,8 @@ pub fn render_responses(call_with_responses: &CallWithResponses) -> String {
 }
 
 pub fn render_responses_short(responses: &[RollCallResponse]) -> String {
-    let responses_by_status = group_by(responses, |response| response.status);
-    let count_by_status = map_values(responses_by_status, |responses| responses.len());
+    let responses_by_status = responses.iter().into_groups_by(|response| response.status);
+    let count_by_status = responses_by_status.map_values(|responses| responses.len());
 
     use AttendanceStatus::*;
     let in_count = count_by_status.get(&In).unwrap_or(&0_usize);
@@ -81,8 +81,8 @@ pub fn render_responses_full(responses: &[RollCallResponse]) -> String {
         }
     }
 
-    let responses_by_status = group_by(responses, |response| response.status);
-    let responses_by_status = map_values(responses_by_status, |mut value| {
+    let responses_by_status = responses.iter().into_groups_by(|response| response.status);
+    let responses_by_status = responses_by_status.map_values(|mut value| {
         value.sort_by_key(|response| response.updated_at);
         value
     });

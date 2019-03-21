@@ -8,7 +8,7 @@ use r2d2;
 
 use crate::models::*;
 use crate::schema;
-use crate::util::collections::first;
+use crate::util::collections::CollectionTools;
 
 pub type Manager = ConnectionManager<PgConnection>;
 pub type Pool = r2d2::Pool<Manager>;
@@ -137,7 +137,7 @@ fn update_call(
         .set(update)
         .get_results(conn)?;
 
-    let updated: Option<RollCall> = first(updated);
+    let updated: Option<RollCall> = updated.take_first();
     debug!("Updated call: {:?}", updated; "call_id" => updated.as_ref().map(|u| u.id));
     Ok(updated)
 }
@@ -151,7 +151,7 @@ fn get_current_call(conn: &PgConnection, chat_id: ChatId) -> QueryResult<Option<
         .limit(1)
         .load::<RollCall>(conn)?;
 
-    Ok(first(open_calls))
+    Ok(open_calls.take_first())
 }
 
 fn get_responses(conn: &PgConnection, call_id: CallId) -> QueryResult<Vec<RollCallResponse>> {
