@@ -1,9 +1,10 @@
 use std::time::Duration;
 
-use chrono::NaiveDateTime;
+use diesel::dsl::sql;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
+use diesel::sql_types::*;
 use r2d2;
 
 use crate::models::*;
@@ -33,7 +34,7 @@ pub fn create_call(conn: &PgConnection, chat_id: ChatId, title: &str) -> QueryRe
     let close_all_calls = || -> QueryResult<usize> {
         let open_calls = table
             .filter(dsl::chat_id.eq(chat_id))
-            .filter(dsl::status.eq(CallStatus::Open));
+            .filter(dsl::status.ne(CallStatus::Closed));
 
         let update_close = UpdateRollCall::new().with_status(CallStatus::Closed);
 
@@ -44,27 +45,22 @@ pub fn create_call(conn: &PgConnection, chat_id: ChatId, title: &str) -> QueryRe
     };
 
     let delete_old_calls = || -> QueryResult<usize> {
-        let to_keep: Vec<_> = table
-            .filter(dsl::chat_id.eq(chat_id))
-            .filter(dsl::status.eq(CallStatus::Closed))
-            .order(dsl::created_at.desc())
-            .limit(10)
-            .select(dsl::created_at)
-            .load::<NaiveDateTime>(conn)?;
-
-        let earliest_to_keep = to_keep.iter().min();
-        let earliest_to_keep = match earliest_to_keep {
-            None => return Ok(0_usize),
-            Some(value) => value,
-        };
-
-        let deleted = diesel::delete(
-            table
-                .filter(dsl::chat_id.eq(chat_id))
-                .filter(dsl::status.eq(CallStatus::Closed))
-                .filter(dsl::created_at.lt(earliest_to_keep)),
-        )
-        .execute(conn)?;
+        const LIMIT: i32 = 10;
+        let deleted = diesel::sql_query(
+            "DELETE \
+                FROM w_roll_calls \
+                WHERE chat_id = $1 \
+                  AND created_at < ( \
+                  SELECT MIN(latest.created_at) \
+                  FROM (SELECT created_at \
+                        FROM w_roll_calls \
+                        WHERE chat_id = $1 \
+                        ORDER BY created_at DESC \
+                        LIMIT $2) AS latest \
+                )")
+            .bind::<BigInt, _>(chat_id)
+            .bind::<Integer, _>(LIMIT)
+            .execute(conn)?;
 
         debug!("Deleted {} old closed calls", deleted);
         Ok(deleted)
@@ -118,21 +114,15 @@ fn update_call(
     chat_id: ChatId,
     update: UpdateRollCall,
 ) -> QueryResult<Option<RollCall>> {
-    use schema::w_roll_calls::{dsl, table};
+    use schema::w_roll_calls::table;
 
-    let open_call = table
-        .filter(dsl::chat_id.eq(chat_id))
-        .filter(dsl::status.eq(CallStatus::Open))
-        .order(dsl::updated_at.desc())
-        .limit(1)
-        .select(dsl::id)
-        .load::<CallId>(conn)?;
+    let filter_open_call = table.filter(
+        sql("id IN (SELECT id FROM w_roll_calls WHERE status = ")
+            .bind::<VarChar, _>(CallStatus::Open)
+            .sql("AND chat_id = ")
+            .bind::<BigInt, _>(chat_id)
+            .sql("ORDER BY created_at DESC LIMIT 1)"));
 
-    if open_call.is_empty() {
-        return Ok(None);
-    }
-
-    let filter_open_call = table.filter(dsl::id.eq_any(open_call));
     let updated = diesel::update(filter_open_call)
         .set(update)
         .get_results(conn)?;
@@ -203,8 +193,8 @@ fn set_response_base<'a, F>(
     chat_id: ChatId,
     value_fn: F,
 ) -> QueryResult<Option<CallWithResponses>>
-where
-    F: Fn(CallId) -> NewRollCallResponse<'a>,
+    where
+        F: Fn(CallId) -> NewRollCallResponse<'a>,
 {
     let open_call = match get_current_call(conn, chat_id)? {
         Some(call) => call,
