@@ -4,7 +4,7 @@
 
 This is an implementation of the [WhosInBot](https://github.com/col/whos_in_bot) in Rust.
 
-Check out the [Clojure](https://github.com/tonylpt/WhosInBot-Clojure) and [Scala](https://github.com/tonylpt/WhosInBot-Scala) versions.
+Check out the [Clojure](https://github.com/tonylpt/WhosInBot-Clojure), [Scala](https://github.com/tonylpt/WhosInBot-Scala), and Col's original [Elixir](https://github.com/col/whos_in_bot) and [Go](https://github.com/col/whosinbot) versions.
 
   
 ## Usage
